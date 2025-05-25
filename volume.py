@@ -1,7 +1,10 @@
 from os import popen
+import subprocess
 
 def get_volume() -> tuple[float, bool]:
-    a = popen("wpctl get-volume @DEFAULT_SINK@ ").read().strip()
+    a = subprocess.Popen("/sbin/wpctl get-volume @DEFAULT_SINK@ ", shell=True, stdout=subprocess.PIPE, text=True)
+    a.wait()
+    a = a.stdout.readline().strip()
     muted = len(a) == 20
     return float(a[7:11]), muted
 
