@@ -1,11 +1,11 @@
 #! /bin/python
-from os import popen
 from time import sleep
 from Xlib.display import Display
 from Xlib.Xatom import STRING
 import volume
 import date
 import battery
+import test
 
 class Bar:
     def __init__(self) -> None:
@@ -15,11 +15,12 @@ class Bar:
 
         # modules, order of modules
         self.modules = {
+            "test": test.get_str,
             "battery": battery.get_str,
             "volume": volume.get_str,
             "date": date.get_str
         }
-        self.order = ["battery", "volume", "date"]
+        self.order = ["test", "battery", "volume", "date"]
         self.cache = ["" for _ in self.order]
 
         # starting "decorator", ending "decorator, separator
