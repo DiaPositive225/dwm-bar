@@ -9,22 +9,39 @@ import battery
 
 class Bar:
     def __init__(self) -> None:
-
+        # set up to change WM_NAME
         self.display = Display()
         self.root = self.display.screen().root
-        self.modules = [battery.get_str, volume.get_str, date.get_str]
+
+        # modules, order of modules
+        self.modules = {
+            "battery": battery.get_str,
+            "volume": volume.get_str,
+            "date": date.get_str
+        }
+        self.order = ["battery", "volume", "date"]
+        self.cache = ["" for _ in self.order]
+
+        # starting "decorator", ending "decorator, separator
+        self.style = (" < ", " > ", " >< ")
 
     def set_bar(self, text : list[str], start_sep : str = "[", end_sep : str = "]", sep : str = "][") -> None:
-        # popen(self.cmd + start_sep + sep.join(text) + end_sep + "'")
         to_be_displayed = start_sep + sep.join(text) + end_sep
         self.root.change_property(self.display.intern_atom('WM_NAME'), STRING, 8, to_be_displayed.encode('utf-8'))
 
-    def update(self) -> None:
-        self.set_bar([i() for i in self.modules], " < ", " > ", " >< ")
+    # basically, update all modules
+    def populate(self) -> None:
+        self.cache = [self.modules[i]() for i in self.order]
+        self.set_bar(self.cache, *self.style)
+
+    def update(self, module : str) -> None:
+        index = self.order.index(module)
+        self.cache[index] = self.modules[module]()
+        self.set_bar(self.cache, *self.style)
 
 
 bar = Bar()
 if __name__ == "__main__":
     while True:
-        bar.update()
+        bar.populate()
         sleep(1)
